@@ -47,7 +47,7 @@ jobs:
         context: ./
         file: ./Dockerfile
         push: true
-        tags: docker4harshit/finance-crawler-backend:latest
+        tags: docker4naman/sanphire_backend:latest
 
     - name: Image Digest
       run: echo ${{ steps.docker_build.outputs.digest }}
