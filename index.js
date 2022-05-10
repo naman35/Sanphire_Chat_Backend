@@ -4,6 +4,11 @@ const mongoose = require("mongoose");
 const authRoutes = require("./routes/auth");
 const messageRoutes = require("./routes/messages");
 const app = express();
+const Sentry = require("@sentry/node");
+// or use es6 import statements
+// import * as Sentry from '@sentry/node';
+
+const Tracing = require("@sentry/tracing");
 const socket = require("socket.io");
 require("dotenv").config();
 
@@ -34,7 +39,29 @@ const io = socket(server, {
     credentials: true,
   },
 });
+Sentry.init({
+  dsn: "https://09bfdd1d0fbe482d802ad531dd3a71da@o1240632.ingest.sentry.io/6394025",
 
+  // Set tracesSampleRate to 1.0 to capture 100%
+  // of transactions for performance monitoring.
+  // We recommend adjusting this value in production
+  tracesSampleRate: 1.0,
+});
+
+const transaction = Sentry.startTransaction({
+  op: "test",
+  name: "My First Test Transaction",
+});
+
+setTimeout(() => {
+  try {
+    foo();
+  } catch (e) {
+    Sentry.captureException(e);
+  } finally {
+    transaction.finish();
+  }
+}, 99);
 global.onlineUsers = new Map();
 io.on("connection", (socket) => {
   global.chatSocket = socket;
